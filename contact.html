@@ -103,30 +103,31 @@
       <h1 data-aos="zoom-in">
         يسعدنا مناقشة وضع مؤسستك </h1>
       <div class="contact-form-wrapper  ">
-        <form method="post" action="mail.php" id="form" class="contact-form">
+        <form method="POST" action="https://sheetdb.io/api/v1/92tj5jsz1wk40" id="form" class="contact-form">
           <h5 class="title">يمكنك التواصل معنا</h5>
           <p class="description">أرسل تساؤلك القانوني وسيتم التواصل معك
           </p>
           <div>
-            <input type="text" class="form-control rounded border-white mb-3 form-input" id="name" name="name"
+            <input type="text" class="form-control rounded border-white mb-3 form-input" name="data[Name]"
               placeholder="الإسم" required>
           </div>
           <div>
-            <input type="text" class="form-control rounded border-white mb-3 form-input" id="phone" name="phone"
+            <input type="text" class="form-control rounded border-white mb-3 form-input" name="data[Phone]"
               placeholder="رقم الهاتف">
           </div>
           <div>
-            <input type="email" class="form-control rounded border-white mb-3 form-input text-start" id="email"
-              name="email" placeholder="البريد الإلكتروني" required>
+            <input type="email" class="form-control rounded border-white mb-3 form-input text-start" name="data[Email]"
+              placeholder="البريد الإلكتروني" required>
           </div>
           <div>
-            <textarea id="message" name="message" class="form-control rounded border-white mb-3 form-text-area" rows="5"
-              cols="30" placeholder="الرسالة" required></textarea>
+            <textarea name="data[Message]" class="form-control rounded border-white mb-3 form-text-area" rows="5"
+              cols="30" placeholder="الرسالة"></textarea>
           </div>
           <div class="submit-button-wrapper">
             <input type="submit" class="main-btn submitBtn" value="إرسال">
           </div>
 
+          <input type="hidden" name="data[Date]" id="currentDate">
           <div class="phone">أو إتصل علي <a href="tel:01278517453" class="text-primary ">01278517453</a></div>
         </form>
       </div>
@@ -275,18 +276,78 @@
   <script src="js/aos.js"></script>
   <script src="./js/typed.umd.js"></script>
   <script src="js/owl.carousel.min.js"></script>
-  <!-- <script src="js/contact.js"></script> -->
   <script src="js/bootstrap.bundle.min.js"></script>
   <script src="js/main.js"></script>
 
   <script>
-    $(document).ready(function () {
-      $("#form").submit(function () {
-        $(".submitBtn").attr("disabled", true);
-        return true;
-      });
+    var form = document.getElementById('form');
+
+    const submitButton = document.querySelector('.submitBtn'); // Use querySelector for a single element
+
+    form.addEventListener("submit", e => {
+      e.preventDefault(); // Prevent default form submission behavior
+
+      // Set the current date
+      const currentDateInput = document.getElementById('currentDate');
+      const currentDate = new Date().toISOString().split('T')[0]; // Format as YYYY-MM-DD
+      currentDateInput.value = currentDate;
+      // Input elements
+      const nameInput = document.querySelector('input[name="data[Name]"]');
+      const phoneInput = document.querySelector('input[name="data[Phone]"]');
+      const emailInput = document.querySelector('input[name="data[Email]"]');
+      const messageInput = document.querySelector('textarea[name="data[Message]"]');
+
+      // Validation logic
+      const nameRegex = /^[\u0621-\u064A\u0660-\u0669a-zA-Z\s]+$/; // Arabic and English letters only
+      const phoneRegex = /^01[0-25][0-9]{8}$/; // Egyptian phone number pattern
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Basic email validation
+
+      if (!nameRegex.test(nameInput.value)) {
+        alert('الرجاء إدخال اسم صالح يحتوي فقط على أحرف عربية أو إنجليزية.');
+        nameInput.focus();
+        return;
+      }
+
+      if (phoneInput.value && !phoneRegex.test(phoneInput.value)) {
+        alert('الرجاء إدخال رقم هاتف صالح.');
+        phoneInput.focus();
+        return;
+      }
+
+      if (!emailRegex.test(emailInput.value)) {
+        alert('الرجاء إدخال بريد إلكتروني صالح.');
+        emailInput.focus();
+        return;
+      }
+
+      submitButton.disabled = true; // Disable the button
+      submitButton.value = "جاري الإرسال..."; // Change the button text
+
+      fetch(form.action, {
+        method: "POST",
+        body: new FormData(form), // Send form data as a FormData object
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          return response.json();
+        })
+        .then(() => {
+          alert('تم الإرسال بنجاح!'); // Success alert
+          form.reset(); // Reset the form fields
+          submitButton.disabled = false; // Re-enable the button
+          submitButton.value = "إرسال"; // Reset the button text
+        })
+        .catch(error => {
+          alert('حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى.'); // Error alert
+          console.error(error); // Log the error for debugging
+          submitButton.disabled = false; // Re-enable the button
+          submitButton.value = "إرسال"; // Reset the button text
+        });
     });
   </script>
+
 
 </body>
 
