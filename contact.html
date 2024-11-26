@@ -289,8 +289,9 @@
 
       // Set the current date
       const currentDateInput = document.getElementById('currentDate');
-      const currentDate = new Date().toISOString().split('T')[0]; // Format as YYYY-MM-DD
-      currentDateInput.value = currentDate;
+      const now = new Date();
+      const formattedDate = now.toLocaleDateString('en-GB'); // Use DD/MM/YYYY format
+      currentDateInput.value = formattedDate;
       // Input elements
       const nameInput = document.querySelector('input[name="data[Name]"]');
       const phoneInput = document.querySelector('input[name="data[Phone]"]');
